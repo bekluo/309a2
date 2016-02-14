@@ -5,7 +5,7 @@ var game_area = {
 		this.canvas.height = 600;
 		this.context = this.canvas.getContext("2d");
 		document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-		this.interval = setInterval(update_game_area, 20);
+		//this.interval = setInterval(update_game_area, 20);
 	},
 	clear : function() {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -14,6 +14,7 @@ var game_area = {
 var bugs = [];
 var food = [];
 var paused = false;
+var time = 60;
 
 function start_game() {
 	game_area.start();
@@ -23,10 +24,13 @@ function start_game() {
 	for (i = 0; i < 5; i++) {
 		make_food();
 	}
+	var interval = setInterval(draw_countdown, 1000);
+	draw_pause_button();
 }
 
 function update_game_area() {
 	game_area.clear();
+	draw_pause_button();
 	if (bugs.length > 0) {
 		for (i = 0; i < bugs.length; i++) {
 			bugs[i].y += 1;
@@ -155,24 +159,35 @@ function bug(width, height, color, x, y){
     }
 }
 
-function draw_pause_button() {
+function draw_play_button() {
 	context.beginPath();
-	context.lineTo(175, 30);
-	context.moveTo(175, 80);
-	context.lineTo(175, 30);
-	context.moveTo(230, 55);
-	context.lineTo(230, 55);
-	context.moveTo(230, 80);
+	context.moveTo(180, 20);
+	context.lineTo(180, 60);
+	context.moveTo(180, 20);
+	context.lineTo(225, 40);
+	context.moveTo(225, 40);
+	context.lineTo(180, 60);
 	context.stroke();
 }
 
-function draw_play_button() {
+function draw_pause_button() {
 	context.beginPath();
-	context.lineTo(190, 30);
-	context.moveTo(190, 80);
-	context.lineTo(215, 30);
-	context.moveTo(215, 80);
+	context.moveTo(190, 20);
+	context.lineTo(190, 60);
+	context.moveTo(215, 20);
+	context.lineTo(215, 60);
 	context.stroke();
+}
+
+function draw_countdown() {
+	context.clearRect(0, 0, 150, 80);
+	context.fillStyle = "black";
+	context.font = "20px Arial";
+	context.fillText(time + " sec", 30, 50);
+
+	//if(!pause) {
+		time -= 1;
+	//}
 }
 
 function distance(x1, y1, x2, y2) {
@@ -190,13 +205,13 @@ function check(value) {
 
 function toggle_pause(paused) {
 	if (paused) {
-		context.clearRect(190, 30, 55, 50);
+		context.clearRect(175, 30, 55, 50);
 		draw_play_button;
 		paused = false;
 	}
 
 	else {
-		context.clearRect(190, 30, 55, 50);
+		context.clearRect(175, 30, 55, 50);
 		draw_pause_button;
 		paused = true;
 	}
