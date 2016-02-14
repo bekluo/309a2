@@ -39,6 +39,7 @@ function start_game() {
 	}
 	countdown = setInterval(time_countdown, 1000);
 	draw_topbar();
+	draw_score();
 	//console.log(food);
 	//console.log(bugs);
 }
@@ -47,6 +48,7 @@ function update_game_area() {
 	game_area.clear();
 	draw_countdown();
 	draw_topbar();
+	draw_score();
 	if (bugs.length > 0) {
 		for (i = 0; i < bugs.length; i++) {
 			if(!paused) {
@@ -149,6 +151,12 @@ function time_countdown() {
 	if (time <= 0) {
 		clearInterval(countdown);
 	}
+}
+
+function draw_score() {
+	context.fillStyle = "black";
+	context.font = "20px Arial";
+	context.fillText(score, 330, 50);
 }
 
 function draw_topbar() {
@@ -266,7 +274,6 @@ function bug_click(event) {
 			console.log(distance);
 			bugs.splice(i, 1);
 			score += bug.score;
-			document.getElementById("score").innerHTML = "Score: " + score;
 		}
 	}
 }
