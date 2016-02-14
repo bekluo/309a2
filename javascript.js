@@ -13,6 +13,7 @@ var game_area = {
 }
 var bugs = [];
 var food = [];
+var paused = false;
 
 function start_game() {
 	game_area.start();
@@ -154,6 +155,26 @@ function bug(width, height, color, x, y){
     }
 }
 
+function draw_pause_button() {
+	context.beginPath();
+	context.lineTo(175, 30);
+	context.moveTo(175, 80);
+	context.lineTo(175, 30);
+	context.moveTo(230, 55);
+	context.lineTo(230, 55);
+	context.moveTo(230, 80);
+	context.stroke();
+}
+
+function draw_play_button() {
+	context.beginPath();
+	context.lineTo(190, 30);
+	context.moveTo(190, 80);
+	context.lineTo(215, 30);
+	context.moveTo(215, 80);
+	context.stroke();
+}
+
 function distance(x1, y1, x2, y2) {
 	return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2))
 }
@@ -166,13 +187,18 @@ function check(value) {
 		document.getElementById("score_display").innerHTML = "100";
 	}
 }
-function toggle_pause(source) {
-	if (source.src != "play_button.png") {
-		source.src = "play_button.png";
+
+function toggle_pause(paused) {
+	if (paused) {
+		context.clearRect(190, 30, 55, 50);
+		draw_play_button;
+		paused = false;
 	}
 
 	else {
-		source.src = "pause_button.png";
+		context.clearRect(190, 30, 55, 50);
+		draw_pause_button;
+		paused = true;
 	}
 }
 
