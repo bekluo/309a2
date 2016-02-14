@@ -20,6 +20,7 @@ var time = 60;
 var score = 0;
 var delay = 0;
 var countdown;
+var bug_interval;
 var level = 1;
 
 function start_game() {
@@ -27,21 +28,13 @@ function start_game() {
 	game_area.canvas.addEventListener('click', bug_click, false);
 	game_area.canvas.addEventListener('click', toggle_pause, false);
 
-	//setInterval()
-	//while (1) {
-		bug1 = new bug("orange", 30, 30);
-		bug2 = new bug("black", 50, 50);
-		bug3 = new bug("red", 100, 50);
-		bugs.push(bug1);
-	//}
 	for (i = 0; i < 5; i++) {
 		make_food();
 	}
 	countdown = setInterval(time_countdown, 1000);
+	bug_interval = setInterval(spawn_bug, 1000 + 2000*Math.random());
 	draw_topbar();
 	draw_score();
-	//console.log(food);
-	//console.log(bugs);
 }
 
 function update_game_area() {
@@ -51,12 +44,12 @@ function update_game_area() {
 	draw_score();
 	if (bugs.length > 0) {
 		for (i = 0; i < bugs.length; i++) {
+			var time = 60;
 			if(!paused) {
-				var time = 60;
 				bugs[i].y += 1;
 				bugs[i].x += 2;
 			}
-				bugs[i].update();
+			bugs[i].update();
 		}	
 	}
 	if (food.length > 0) {
@@ -80,6 +73,19 @@ function update_game_area() {
 function update_food(x, y) {
 	var img = document.getElementById("watermelon");
 	context.drawImage(img, x, y, 35, 35);
+}
+
+function rand_color() {
+	var num = Math.random();
+	if (num <= .33) {
+		return "orange";
+	}
+	if (num > .33 && num <= .66) {
+		return "red";
+	}
+	if (num > .66) {
+		return "black";
+	}
 }
 
 function make_food() {
@@ -186,15 +192,15 @@ function find_closest_food(bug) {
 }
 
 function spawn_bug() {
-	delay -= 1;
-	if (delay <= 0) {
-		x = 400 * Math.random();
-		y = 10;
-		delay = 1 + 2*Math.random();
-		//setTimeout(function() {})
-	}
+	x = 400 * Math.random();
+	y = 100;
+	new_bug = new bug(rand_color(), x, y);
+	bugs.push(new_bug);
+	bug_interval = setInterval(spawn_bug, 1000 + 2000*Math.random());
+	console.log(bugs);
 }
-function bug(color, x, y, dest) {
+
+function bug(color, x, y) {
     this.color = color;    
     // use these to keep track of bug coordinate
     this.x = x;
@@ -259,7 +265,6 @@ function bug(color, x, y, dest) {
     context.moveTo(x+5, y+10);
     context.lineTo(x+12, y+15);
     context.stroke();
-
     this.update = function() {
     	bug(color, this.x, this.y);
     }
