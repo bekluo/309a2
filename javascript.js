@@ -11,24 +11,39 @@ var game_area = {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 }
+// bug objects
 var bugs = [];
+// vegetable coordinates
 var food = [];
+var paused = false;
+var time = 60;
 
 function start_game() {
 	game_area.start();
 	// call function that calls while loop and puts bugs on the screen until can't
-	bug = new bug(30, 30, "orange", 10, 120);
-	bugs.push(bug);
+	//while (1) {
+		bug1 = new bug("orange", 30, 30);
+		bug2 = new bug("black", 50, 50);
+		bug3 = new bug("red", 100, 50);
+		bugs.push(bug1);
+	//}
 	for (i = 0; i < 5; i++) {
 		make_food();
 	}
+	var interval = setInterval(draw_countdown, 1000);
+	draw_pause_button();
+	//console.log(food);
+	//console.log(bugs);
 }
 
 function update_game_area() {
 	game_area.clear();
+	draw_pause_button();
 	if (bugs.length > 0) {
 		for (i = 0; i < bugs.length; i++) {
+			var time = 60;
 			bugs[i].y += 1;
+			bugs[i].x += 2;
 			bugs[i].update();
 		}	
 	}
@@ -48,7 +63,7 @@ function update_food(x, y) {
 
 function make_food() {
 	var img = document.getElementById("watermelon");
-	console.log(food);
+	context = game_area.context;
 	// If the list isn't empty
 	if (food.length > 0) {
 		// Compare a random point to food already placed
@@ -56,9 +71,10 @@ function make_food() {
 		y = Math.random() * 450 + 120;
 		free = true;
 		for (i = 0; i < food.length; i++) {
-			if (distance(food[i][0], x, food[i][1], y) < 50) {
+			if (distance(food[i][0], food[i][1], x, y) < 50) {
 				free = false;
 			}
+
 		}
 		if (free) {
 			context.drawImage(img, x, y, 35, 35);
@@ -80,77 +96,105 @@ function make_food() {
 
 }	
 
-function bug(width, height, color, x, y){
+function draw_play_button() {
+	context.beginPath();
+	context.moveTo(180, 20);
+	context.lineTo(180, 60);
+	context.moveTo(180, 20);
+	context.lineTo(225, 40);
+	context.moveTo(225, 40);
+	context.lineTo(180, 60);
+	context.stroke();
+}
+
+function draw_pause_button() {
+	context.beginPath();
+	context.moveTo(190, 20);
+	context.lineTo(190, 60);
+	context.moveTo(215, 20);
+	context.lineTo(215, 60);
+	context.stroke();
+}
+
+function draw_countdown() {
+	context.clearRect(0, 0, 150, 80);
+	context.fillStyle = "black";
+	context.font = "20px Arial";
+	context.fillText(time + " sec", 30, 50);
+
+	//if(!pause) {
+		time -= 1;
+	//}
+}
+function find_closest_food(bug) {
+	min_distance = 750;
+	i_food = 0;
+	for (i = 0; i < food.length; i++) {
+		if (distance(bug.x, bug.y, food[i][0], food[i][1]) < min_distance) {
+			min_distance = distance(bug.x, bug.y, food[i][0], food[i][1]);
+			i_food = i;
+		}
+	}
+	// Return the index in food of the closest food to this bug
+	return i_food;
+}
+
+function bug(color, x, y, dest) {
     this.color = color;    
     // use these to keep track of bug coordinate
     this.x = x;
     this.y = y;
-    this.width = width;
-    this.height = height;
     context = game_area.context;
-    context.fillStyle = color;
-    context.fillRect(this.x, this.y, this.width, this.height);
-    //var radius = 5;
-
-	/*// Draw head
-	context.beginPath();
-	context.arc(15 * x, 5 * y, radius, Math.PI-1, 2*Math.PI + 1);
-	context.strokeStyle = color;
-	context.stroke();
+    var radius = 5;
 	context.fillStyle = color;
+	// Draw head
+	context.beginPath();
+	context.arc(x, y, radius, 0, 2*Math.PI);
+	context.stroke();
 	context.fill();
 
 	// Draw middle
 	context.beginPath();
-	context.arc(15 * x, 11 * y, radius - 2, Math.PI-1, 2*Math.PI + 1);
+	context.arc(x, y + 8, radius, 0, 2*Math.PI);
 	context.stroke();
-	context.fillStyle = color;
 	context.fill();
-	context.strokeStyle = color;
-    // save state
-    context.save();
-    // scale canvas
-    context.scale(1, 1.75);
-    // draw circle which will be stretched into an oval
+
+    // draw end
     context.beginPath();
-    context.arc(15 * x, 13 * y, radius, 0, 2 * Math.PI, false);
-    // restore to original state
-    context.restore();
-    // Apply styling to oval
-    context.fillStyle = color;
-    context.fill();
-    context.lineWidth = 1;
-    context.strokeStyle = color;
+    context.arc(x, y + 16, radius, 0, 2*Math.PI);
     context.stroke();
+    context.fill();
+
     // Draw legs; go from point on body outwards
     //1 left
-    context.moveTo(12, 12);
-    context.lineTo(3, 8);
-    context.stroke();
-    //2 left
-    context.moveTo(10, 18);
-    context.lineTo(3, 18);
-    context.stroke();
-    //3 left
-    context.moveTo(10, 25);
-    context.lineTo(3, 28);
+    context.moveTo(x-4, y);
+    context.lineTo(x-10, y-5);
     context.stroke();
     //1 right
-    context.moveTo(18, 12);
-    context.lineTo(27, 8);
+    context.moveTo(x+4, y);
+    context.lineTo(x+10, y-5);
+    context.stroke();
+
+    //2 left
+    context.moveTo(x-4, y+5);
+    context.lineTo(x-12, y+5);
     context.stroke();
     //2 right
-    context.moveTo(20, 18);
-    context.lineTo(27, 18);
+    context.moveTo(x+4, y+5);
+    context.lineTo(x+12, y+5);
+    context.stroke();
+
+    //3 left
+    context.moveTo(x-5, y+10);
+    context.lineTo(x-12, y+15);
     context.stroke();
     //3 right
-    context.moveTo(20, 25);
-    context.lineTo(27, 28);
-    context.stroke();*/
+    context.moveTo(x+5, y+10);
+    context.lineTo(x+12, y+15);
+    context.stroke();
 
     this.update = function() {
-    	context.fillStyle = color;
-    	context.fillRect(this.x, this.y, this.width, this.height);
+    	bug(color, this.x, this.y);
     }
 }
 
@@ -166,13 +210,18 @@ function check(value) {
 		document.getElementById("score_display").innerHTML = "100";
 	}
 }
-function toggle_pause(source) {
-	if (source.src != "play_button.png") {
-		source.src = "play_button.png";
+
+function toggle_pause(paused) {
+	if (paused) {
+		context.clearRect(175, 30, 55, 50);
+		draw_play_button;
+		paused = false;
 	}
 
 	else {
-		source.src = "pause_button.png";
+		context.clearRect(175, 30, 55, 50);
+		draw_pause_button;
+		paused = true;
 	}
 }
 
