@@ -17,10 +17,14 @@ var bugs = [];
 var food = [];
 var paused = false;
 var time = 60;
+var score = 0;
+var delay = 0;
 
 function start_game() {
 	game_area.start();
-	// call function that calls while loop and puts bugs on the screen until can't
+	game_area.canvas.addEventListener('click', bug_click, false);
+
+	//setInterval()
 	//while (1) {
 		bug1 = new bug("orange", 30, 30);
 		bug2 = new bug("black", 50, 50);
@@ -30,8 +34,8 @@ function start_game() {
 	for (i = 0; i < 5; i++) {
 		make_food();
 	}
-	var interval = setInterval(draw_countdown, 1000);
-	draw_pause_button();
+	var interval = setInterval(time_countdown, 1000);
+	//draw_pause_button();
 	//console.log(food);
 	//console.log(bugs);
 }
@@ -39,6 +43,7 @@ function start_game() {
 function update_game_area() {
 	game_area.clear();
 	draw_pause_button();
+	draw_countdown();
 	if (bugs.length > 0) {
 		for (i = 0; i < bugs.length; i++) {
 			var time = 60;
@@ -47,7 +52,6 @@ function update_game_area() {
 			bugs[i].update();
 		}	
 	}
-
 	if (food.length > 0) {
 		for (i = 0; i < food.length; i++) {
 			update_food(food[i][0], food[i][1]);
@@ -121,11 +125,12 @@ function draw_countdown() {
 	context.fillStyle = "black";
 	context.font = "20px Arial";
 	context.fillText(time + " sec", 30, 50);
-
-	//if(!pause) {
-		time -= 1;
-	//}
 }
+
+function time_countdown() {
+	time -=1;
+}
+
 function find_closest_food(bug) {
 	min_distance = 750;
 	i_food = 0;
@@ -139,6 +144,15 @@ function find_closest_food(bug) {
 	return i_food;
 }
 
+function spawn_bug() {
+	delay -= 1;
+	if (delay <= 0) {
+		x = 400 * Math.random();
+		y = 10;
+		delay = 1 + 2*Math.random();
+		//setTimeout(function() {})
+	}
+}
 function bug(color, x, y, dest) {
     this.color = color;    
     // use these to keep track of bug coordinate
@@ -147,6 +161,18 @@ function bug(color, x, y, dest) {
     context = game_area.context;
     var radius = 5;
 	context.fillStyle = color;
+	if (color == "orange") {
+		this.score = 1;
+	}
+
+	if (color == "red") {
+		this.score = 3;
+	}
+
+	if (color == "black") {
+		this.score = 5;
+	}
+
 	// Draw head
 	context.beginPath();
 	context.arc(x, y, radius, 0, 2*Math.PI);
@@ -196,6 +222,20 @@ function bug(color, x, y, dest) {
     this.update = function() {
     	bug(color, this.x, this.y);
     }
+}
+
+function bug_click(event) {
+	x = event.offsetX;
+	y = event.offsetY;
+
+	for (i = 0; i < bugs.length; i++) {
+		if (distance(bugs[i].x, bugs[i].y, x, y) < 30) {
+			console.log(distance);
+			bugs.splice(i, 1);
+			score += bug.score;
+			document.getElementById("score").innerHTML = "Score: " + score;
+		}
+	}
 }
 
 function distance(x1, y1, x2, y2) {
