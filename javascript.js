@@ -16,12 +16,14 @@ var bugs = [];
 // vegetable coordinates
 var food = [];
 var paused = false;
-var time = 60;
+var time = 10;
+var gamescore;
 var score = 0;
 var delay = 0;
 var countdown;
 var bug_interval;
 var level = 1;
+var lost = false;
 
 function start_game() {
 	game_area.start();
@@ -35,6 +37,7 @@ function start_game() {
 	bug_interval = setInterval(spawn_bug, 1000 + 2000*Math.random());
 	draw_topbar();
 	draw_score();
+	gamescore = 0;
 }
 
 function update_game_area() {
@@ -64,8 +67,9 @@ function update_game_area() {
 		draw_play_button();
 	}
 
-	if (food.length == 0 || time == 0) {
-
+	if (time == 0) {
+		lost = true;
+		toggle_game();
 	}
 
 }
@@ -162,7 +166,7 @@ function time_countdown() {
 function draw_score() {
 	context.fillStyle = "black";
 	context.font = "20px Arial";
-	context.fillText(score, 330, 50);
+	context.fillText(gamescore, 330, 50);
 }
 
 function draw_topbar() {
@@ -192,12 +196,12 @@ function find_closest_food(bug) {
 }
 
 function spawn_bug() {
-	x = 400 * Math.random();
+	x = 10 + 380 * Math.random();
 	y = 100;
 	new_bug = new bug(rand_color(), x, y);
 	bugs.push(new_bug);
+	clearInterval(bug_interval);
 	bug_interval = setInterval(spawn_bug, 1000 + 2000*Math.random());
-	console.log(bugs);
 }
 
 function bug(color, x, y) {
@@ -274,11 +278,18 @@ function bug_click(event) {
 	x = event.offsetX;
 	y = event.offsetY;
 
-	for (i = 0; i < bugs.length; i++) {
+	for (var i = 0; i < bugs.length; i++) {
 		if (distance(bugs[i].x, bugs[i].y, x, y) < 30) {
-			console.log(distance);
-			bugs.splice(i, 1);
-			score += bug.score;
+			if (bugs[i].color == "orange") {
+				gamescore += 1;
+			}
+			else if (bugs[i].color == "red") {
+				gamescore += 3;
+			}
+			else if (bugs[i].color == "black") {
+				gamescore += 5;
+			}
+			bugs.splice(i, 1);	
 		}
 	}
 }
@@ -304,12 +315,15 @@ function toggle_pause(event) {
 		if (!paused) {
 			context.clearRect(175, 30, 55, 50);
 			draw_play_button();
+			clearInterval(bug_interval);
 			paused = true;
 		}
 		else {
 			context.clearRect(175, 30, 55, 50);
 			draw_pause_button();
+			bug_interval = setInterval(spawn_bug, 1000 + 2000*Math.random());
 			paused = false;
+
 		}
 	}
 }
@@ -329,6 +343,12 @@ function toggle_page() {
 }
 
 function toggle_game() {
-
+	console.log("sup");
+	if (lost) {
+		var restart = confirm("Game Over! \n Score: " + score);
+	}
+	if (restart) {
+		toggle_page();
+	}
 }
 
