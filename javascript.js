@@ -280,16 +280,18 @@ function bug_click(event) {
 
 	for (var i = 0; i < bugs.length; i++) {
 		if (distance(bugs[i].x, bugs[i].y, x, y) < 30) {
-			if (bugs[i].color == "orange") {
-				gamescore += 1;
-			}
-			else if (bugs[i].color == "red") {
-				gamescore += 3;
-			}
-			else if (bugs[i].color == "black") {
-				gamescore += 5;
-			}
-			bugs.splice(i, 1);	
+			if (!paused) {
+				if (bugs[i].color == "orange") {
+					gamescore += 1;
+				}
+				else if (bugs[i].color == "red") {
+					gamescore += 3;
+				}
+				else if (bugs[i].color == "black") {
+					gamescore += 5;
+				}
+				bugs.splice(i, 1);
+			}	
 		}
 	}
 }
