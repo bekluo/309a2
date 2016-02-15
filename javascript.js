@@ -16,7 +16,7 @@ var bugs = [];
 // vegetable coordinates
 var food = [];
 var paused = false;
-var time = 10;
+var time = 5;
 var gamescore;
 var score = 0;
 var delay = 0;
@@ -47,7 +47,6 @@ function update_game_area() {
 	draw_score();
 	if (bugs.length > 0) {
 		for (i = 0; i < bugs.length; i++) {
-			var time = 60;
 			if(!paused) {
 				bugs[i].y += 1;
 				bugs[i].x += 2;
@@ -67,8 +66,13 @@ function update_game_area() {
 		draw_play_button();
 	}
 
-	if (time == 0) {
+	if (food.length == 0) {
+		clearInterval(game_area.interval);
 		lost = true;
+		toggle_game();
+	}
+
+	if (time == 0) {
 		toggle_game();
 	}
 
@@ -159,8 +163,7 @@ function time_countdown() {
 		time -=1;
 	}
 	if (time <= 0) {
-		clearInterval(countdown);
-	}
+		clearInterval(countdown);	}
 }
 
 function draw_score() {
@@ -325,7 +328,6 @@ function toggle_pause(event) {
 			draw_pause_button();
 			bug_interval = setInterval(spawn_bug, 1000 + 2000*Math.random());
 			paused = false;
-
 		}
 	}
 }
@@ -345,12 +347,39 @@ function toggle_page() {
 }
 
 function toggle_game() {
-	console.log("sup");
+	var restart;
+	var end;
+	clearInterval(bug_interval);
+	bugs, food = [];
+	time = 5;
+	gamescore = 0;
 	if (lost) {
-		var restart = confirm("Game Over! \n Score: " + score);
+		// OK = restart game, Cancel = homepage
+		restart = confirm("Game Over! \nScore: " + gamescore
+			+ "\nReplay?");
+		if (!restart) {
+			lost = false;
+			toggle_page()
+		} else {
+			lost = false();
+			start_game();
+		}
+	} else {
+		if (level == 1) {
+			level = 2;
+			start_game();
+		}
+		else if (level == 2) {
+			end = confirm("Game Over! \nScore: " + gamescore
+				+ "\nFinish");
+			if (end) {
+				lost = false
+				level = 1;
+				toggle_page();
+			} else {
+				paused = true;
+			}
+		}
 	}
-	if (restart) {
-		toggle_page();
-	}
-}
 
+}
